@@ -25,12 +25,16 @@ extensions = [
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["vectorio", "bitmaptools"]
+autodoc_mock_imports = ["vectorio", "bitmaptools", "adafruit_displayio_layout"]
 
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.4", None),
     "CircuitPython": ("https://circuitpython.readthedocs.io/en/latest/", None),
+    "adafruit_bitmap_font": (
+        "https://circuitpython.readthedocs.io/projects/bitmap-font/en/latest/",
+        None,
+    ),
 }
 
 # Show the docstring from both the class and its __init__() method.
