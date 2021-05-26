@@ -31,7 +31,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     # The project's main homepage.
-    url="https://github.com/circuitpython/CircuitPython_DisplayIO_Cartesian.git",
+    url="https://github.com/circuitpython/CircuitPython_Org_DisplayIO_Cartesian.git",
     # Author details
     author="Jose David M.",
     author_email="",
