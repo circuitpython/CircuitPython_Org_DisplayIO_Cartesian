@@ -31,6 +31,10 @@ autodoc_mock_imports = ["vectorio", "bitmaptools"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.4", None),
     "CircuitPython": ("https://circuitpython.readthedocs.io/en/latest/", None),
+    "adafruit_bitmap_font": (
+        "https://circuitpython.readthedocs.io/projects/bitmap-font/en/latest/",
+        None,
+    ),
 }
 
 # Show the docstring from both the class and its __init__() method.

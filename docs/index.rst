@@ -22,10 +22,9 @@ Table of Contents
     api
 
 .. toctree::
-    :caption: Tutorials
+    :caption: More Information
 
-.. toctree::
-    :caption: Related Products
+    cartesian
 
 .. toctree::
     :caption: Other Links

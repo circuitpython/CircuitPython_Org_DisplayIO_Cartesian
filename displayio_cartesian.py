@@ -14,10 +14,22 @@ Implementation Notes
 
 **Hardware:**
 
+You could use one of the following Adafruit products:
+
+* `Adafruit PyPortal - CircuitPython Powered Internet Display
+  <https://www.adafruit.com/product/4116>`_ (Product ID: 4116)
+
+* `Adafruit PyPortal Titano
+  <https://www.adafruit.com/product/4444>`_ (Product ID: 4444)
+
+* `Adafruit PyPortal Pynt - CircuitPython Powered Internet Display - 2.4" TFT
+  <https://www.adafruit.com/product/4465>`_ (Product ID: 4465)
+
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
+  https://circuitpython.org/downloads
+
 
 """
 
@@ -42,36 +54,36 @@ except ImportError:
 
 
 class Cartesian(Widget):
-    """A cartesian widget.  The origin is set using ``x`` and ``y``.
+    """A cartesian widget.  The origin is set using :const:`x` and :const:`y`.
 
     :param int x: x position of the plane origin
     :param int y: y position of the plane origin
 
-    :param int background_color: background color to use defaults to black (0x000000)
+    :param int background_color: background color to use. Defaults to black :const:`0x000000`
     :param int width: requested width, in pixels.
     :param int height: requested height, in pixels.
 
-    :param (int, int) xrange: X axes range. Defaults to (0, 100)
-    :param (int, int) yrange: Y axes range. Defaults to (0, 100)
+    :param (int, int) xrange: X axes range. Defaults to :const:`(0, 100)`
+    :param (int, int) yrange: Y axes range. Defaults to :const:`(0, 100)`
 
-    :param int axes_color: axes lines color defaults to white (0xFFFFFF)
-    :param int axes_stroke: axes lines thickness in pixels defaults to 2
+    :param int axes_color: axes lines color. Defaults to white :const:`0xFFFFFF`
+    :param int axes_stroke: axes lines thickness in pixels. Defaults to :const:`2`
 
-    :param int major_tick_stroke: tick lines thickness in pixels defaults to 1
-    :param int major_tick_length: tick lines length in pixels defaults to 5
+    :param int major_tick_stroke: tick lines thickness in pixels. Defaults to :const:`1`
+    :param int major_tick_length: tick lines length in pixels. Defaults to :const:`5`
 
-    :param terminalio.FONT tick_label_font: tick label text font
-    :param int font_color: font color. Defaults to white (0xFFFFFF)
+    :param FONT tick_label_font: tick label text font
+    :param int font_color: font color. Defaults to white :const:`0xFFFFFF`
 
     :param int pointer_radius: pointer radius in pixels defaults to 1
-    :param int pointer_color: pointer color. Defaults to white (0xFFFFFF)
+    :param int pointer_color: pointer color. Defaults to white :const:`0xFFFFFF`
 
-    :param bool subticks: inclusion of subticks in the plot area. Default to False
+    :param bool subticks: inclusion of subticks in the plot area. Default to `False`
 
     :param int nudge_x: movement in pixels in the x direction to move the origin.
-     Defaults to 0
+     Defaults to :const:`0`
     :param int nudge_y: movement in pixels in the y direction to move the origin.
-     Defaults to 0
+     Defaults to :const:`0`
 
 
     **Quickstart: Importing and using Cartesian**
@@ -110,56 +122,6 @@ class Cartesian(Widget):
         #
 
         display.show(my_group) # add the group to the display
-
-
-    **Summary: Cartesian Features and input variables**
-
-    The `Cartesian` widget has some options for controlling its position, visible appearance,
-    and scale through a collection of input variables:
-
-        - **position**: ``x``, ``y``, ``anchor_point``, ``anchored_position`` and
-          ``nudge_x``, ``nudge_y``. Nudge parameters are used to account for the float and int
-          conversions required to display different ranges and values. Conversion are required
-          as displays work in integers and not floats
-
-        - **size**: ``width`` and ``height``
-
-        - **color**: ``axes_color``, ``font_color``, ``tick_color``, ``pointer_color``
-
-        - **background color**: ``background_color``
-
-        - **linewidths**: ``axes_stroke`` and ``major_tick_stroke``
-
-        - **range**: ``xrange`` and ``yrange`` This is the range in absolute units.
-          For example, when using (20-90), the X axis will start at 20 finishing at 90.
-          However the height of the graph is given by the height parameter. The scale
-          is handled internal to provide a 1:1 experience when you update the graph.
-
-
-    .. figure:: cartesian.gif
-       :scale: 100 %
-       :figwidth: 50%
-       :align: center
-       :alt: Diagram of the cartesian widget with the pointer in motion.
-
-       This is a diagram of a cartesian widget with the pointer moving in the
-       plot area.
-
-    .. figure:: cartesian_zones.png
-       :scale: 100 %
-       :figwidth: 50%
-       :align: center
-       :alt: Diagram of the cartesian widget zones.
-
-       This is a diagram of a cartesian widget showing the different zones.
-
-    .. figure:: cartesian_explanation.png
-       :scale: 100 %
-       :figwidth: 50%
-       :align: center
-       :alt: Diagram of the cartesian widget localisation.
-
-       This is a diagram of a cartesian widget showing localisation scheme.
 
     """
 
@@ -464,10 +426,12 @@ class Cartesian(Widget):
     def update_pointer(self, x: int, y: int) -> None:
         """updater_pointer function
         helper function to update pointer in the plane
-        :param int x: ``x`` coordinate in the local plane
-        :param int y: ``y`` coordinate in the local plane
+
+        :param int x: :attr:`x` coordinate in the local plane
+        :param int y: :attr:`y` coordinate in the local plane
         :return: None
-        rtype: None
+        :rtype: None
+
         """
         local_x = int((x - self._xrange[0]) * self._factorx) + self._nudge_x
         local_y = (
@@ -487,11 +451,14 @@ class Cartesian(Widget):
 
     def update_line(self, x: int, y: int) -> None:
         """updater_line function
+
         helper function to update pointer in the plane
-        :param int x: ``x`` coordinate in the local plane
-        :param int y: ``y`` coordinate in the local plane
+        :param int x: :attr:`x`` coordinate in the local plane
+        :param int y: :attr:`y` coordinate in the local plane
+
         :return: None
-        rtype: None
+        :rtype: None
+
         """
         local_x = int((x - self._xrange[0]) * self._factorx) + self._nudge_x
         local_y = (
