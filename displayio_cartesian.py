@@ -116,7 +116,7 @@ class Cartesian(Widget):
 
     **Summary: Cartesian Features and input variables**
 
-    The `cartesian` widget has some options for controlling its position, visible appearance,
+    The `Cartesian` widget has some options for controlling its position, visible appearance,
     and scale through a collection of input variables:
 
         - **position**: ``x``, ``y``, ``anchor_point``, ``anchored_position`` and
