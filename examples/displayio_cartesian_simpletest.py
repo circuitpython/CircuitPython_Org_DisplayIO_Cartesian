@@ -10,7 +10,7 @@ import time
 import board
 import displayio
 import terminalio
-from adafruit_displayio_layout.widgets.cartesian import Cartesian
+from displayio_cartesian import Cartesian
 
 # Fonts used for the Dial tick labels
 tick_font = terminalio.FONT
