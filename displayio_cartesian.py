@@ -680,7 +680,7 @@ class Cartesian(Widget):
                 self._plot_bitmap, pixel_x, pixel_y, pixel_x, plot_y_zero, 1
             )
 
-    def clear_plot_lines(self, palette_index=5):
+    def clear_plot_lines(self, palette_index: int = 5) -> None:
         """clear_plot_lines function.
 
         clear all added lines
