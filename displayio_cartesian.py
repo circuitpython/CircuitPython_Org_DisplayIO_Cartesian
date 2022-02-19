@@ -650,7 +650,6 @@ class Cartesian(Widget):
                 slope = delta_y / delta_x
 
                 if delta_y_product < 0:
-                    # TODO: Area needs to be split into two triangles
 
                     intercept = self.plot_line_point[-1][1]
                     zero_point_x = (-1 * intercept) / slope
