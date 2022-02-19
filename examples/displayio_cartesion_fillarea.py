@@ -18,19 +18,25 @@ display = board.DISPLAY
 # for display chip driver and pinout you have (e.g. ILI9341)
 
 # Generate data - here we'll make a normal distribution
-X_LOWER_BOUND = 0
-X_UPPER_BOUND = 10
 raw_data = []
 data = []
+MAX_DICE_SIDE = 20
+NUMBER_OF_DICE = 10
+NUMBER_OF_ROLLS = 500
 
-for _ in range(100):
-    data_point = int(10 * random.random(X_LOWER_BOUND, X_UPPER_BOUND + 1))
-    raw_data.append(data_point)
+for _ in range(NUMBER_OF_ROLLS):
+    # Simulate equivalent dice rolls
+    sum_random = 0
+    for _ in range(NUMBER_OF_DICE):
+        sum_random += random.uniform(1, MAX_DICE_SIDE)
+    average_random = sum_random // NUMBER_OF_DICE
+    raw_data.append(average_random)
 
+# Calculate the number of each roll result and pair with itself
 y_upper_bound = 0
-for value in range(len(X_UPPER_BOUND + 1)):
-    value_count = raw_data.count(value)
-    data.append(value_count)
+for value in range(MAX_DICE_SIDE + 1):
+    value_count = raw_data.count(value) / 10
+    data.append((value, value_count))
     y_upper_bound = max(y_upper_bound, value_count)
 
 # pybadge display:  160x128
@@ -41,7 +47,7 @@ my_plane = Cartesian(
     y=2,  # y plane position
     width=135,  # display width
     height=105,  # display height
-    xrange=(X_LOWER_BOUND, X_UPPER_BOUND),  # x range
+    xrange=(0, MAX_DICE_SIDE),  # x range
     yrange=(0, y_upper_bound),  # y range
     fill_area=True,
 )
@@ -54,7 +60,7 @@ print("examples/displayio_layout_cartesian_fillarea.py")
 
 for x, y in data:
     my_plane.add_plot_line(x, y)
-    time.sleep(0.5)
+    time.sleep(0.1)
 
 while True:
     pass
