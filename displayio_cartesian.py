@@ -506,7 +506,7 @@ class Cartesian(Widget):
         :return: None
         rtype: None
         """
-        print("X: {}, Y: {}".format(x, y))
+
         local_x, local_y = self._calc_local_xy(x, y)
         if self._verbose:
             print("")
@@ -626,8 +626,6 @@ class Cartesian(Widget):
         :return: None
         """
         self._add_point(x, y)
-        print("CURRENT POINTS:")
-        print(self.plot_line_point)
         if len(self.plot_line_point) > 1:
             bitmaptools.draw_line(
                 self._plot_bitmap,
