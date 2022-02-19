@@ -83,7 +83,7 @@ class Cartesian(Widget):
 
     .. code-block:: python
 
-        from adafruit_displayio_layout.widgets.cartesian import Cartesian as Plane
+        from displayio_cartesian import Cartesian as Plane
 
     Now you can create a plane at pixel position x=20, y=30 using:
 
