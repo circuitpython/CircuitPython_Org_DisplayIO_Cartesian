@@ -43,7 +43,7 @@ my_plane = Cartesian(
     height=105,  # display height
     xrange=(X_LOWER_BOUND, X_UPPER_BOUND),  # x range
     yrange=(0, y_upper_bound),  # y range
-    fill_area=True
+    fill_area=True,
 )
 
 my_group = displayio.Group()
