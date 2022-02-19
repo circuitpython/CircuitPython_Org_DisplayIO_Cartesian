@@ -612,7 +612,7 @@ class Cartesian(Widget):
         return self._fill_area
 
     @fill_area.setter
-    def fill_area_under(self, setting: bool) -> None:
+    def fill_area(self, setting: bool) -> None:
         self._fill_area = setting
 
     def add_plot_line(self, x: int, y: int) -> None:
