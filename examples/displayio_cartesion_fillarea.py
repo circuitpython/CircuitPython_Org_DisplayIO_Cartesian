@@ -37,9 +37,9 @@ for value in range(len(X_UPPER_BOUND + 1)):
 # Create a Cartesian widget
 # https://circuitpython.readthedocs.io/projects/displayio-layout/en/latest/api.html#module-adafruit_displayio_layout.widgets.cartesian
 my_plane = Cartesian(
-    x=15,  # x position for the plane
+    x=20,  # x position for the plane
     y=2,  # y plane position
-    width=140,  # display width
+    width=135,  # display width
     height=105,  # display height
     xrange=(X_LOWER_BOUND, X_UPPER_BOUND),  # x range
     yrange=(0, y_upper_bound),  # y range
