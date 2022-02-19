@@ -461,7 +461,7 @@ class Cartesian(Widget):
 
         self.append(self._pointer)
 
-    def _calc_local_xy(self, x: int, y: int) -> (int, int):
+    def _calc_local_xy(self, x: int, y: int) -> Tuple[int, int]:
         local_x = (
             int((x - self._xrange[0]) * self._factorx * self._valuex) + self._nudge_x
         )
