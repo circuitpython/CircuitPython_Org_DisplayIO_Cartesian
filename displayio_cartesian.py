@@ -635,6 +635,47 @@ class Cartesian(Widget):
                 self.plot_line_point[-1][1],
                 1,
             )
+            # Plot area under graph
+            if self._fill_area:
+
+                delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
+                delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
+                delta_y_product = self.plot_line_point[-1][1] * self.plot_line_point[-2][1]
+
+                if delta_x == 0:
+                    return
+
+                slope = delta_y/delta_x
+                above_x_axis = False if slope > 0 else True
+
+                if delta_y_product < 0:
+                    # TODO: Area needs to be split into two triangles 
+                    
+                    c = self.plot_line_point[-1][1]
+                    zero_point_x = (-1 * c)/slope
+
+                    self._draw_area_under(self.plot_line_point[-2], (zero_point_x, 0))
+                    self._draw_area_under((zero_point_x, 0), self.plot_line_point[-1])
+
+                else:
+
+                    point_to_check = self.plot_line_point[-1] if self.plot_line_point[-1][1] != 0 else self.plot_line_point[-2]
+                    above_x_axis = point_to_check[1] > 0
+
+                    self._draw_area_under(self.plot_line_point[-2], self.plot_line_point[-1])
+
+    def _draw_area_under(self, xy0: Tuple[float, float], xy1: Tuple[float, float]) -> None:
+
+        _, plot_y_zero = self._calc_local_xy(0, 0)
+
+        delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
+        delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
+        slope = delta_y/delta_x
+
+        for pixel_x in range(xy0[0], xy1[0]+1):
+            if pixel_x != xy1[0]:
+                pixel_y = round(slope*(pixel_x-xy1[0]) + xy1[1])
+            bitmaptools.draw_line(self._plot_bitmap, pixel_x, pixel_y, pixel_x, plot_y_zero, 1)
 
     def clear_plot_lines(self, palette_index=5):
         """clear_plot_lines function.
