@@ -183,6 +183,7 @@ class Cartesian(Widget):
         nudge_x: int = 0,
         nudge_y: int = 0,
         verbose: bool = False,
+        fill_area: bool = False,
         **kwargs,
     ) -> None:
 
@@ -317,6 +318,8 @@ class Cartesian(Widget):
         self._pointer = None
         self._circle_palette = None
         self.plot_line_point = None
+
+        self._fill_area = False
 
     @staticmethod
     def _get_font_height(font, scale: int) -> Tuple[int, int]:
@@ -503,6 +506,7 @@ class Cartesian(Widget):
         :return: None
         rtype: None
         """
+        print("X: {}, Y: {}".format(x, y))
         local_x, local_y = self._calc_local_xy(x, y)
         if self._verbose:
             print("")
@@ -603,6 +607,14 @@ class Cartesian(Widget):
             self._pointer.x = self.plot_line_point[-1][0]
             self._pointer.y = self.plot_line_point[-1][1]
 
+    @property
+    def fill_area(self) -> bool:
+        return self._fill_area
+
+    @fill_area.setter
+    def fill_area_under(self, setting: bool) -> None:
+        self._fill_area = setting
+
     def add_plot_line(self, x: int, y: int) -> None:
         """add_plot_line function.
 
@@ -612,10 +624,10 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
-
-        rtype: None
         """
         self._add_point(x, y)
+        print("CURRENT POINTS:")
+        print(self.plot_line_point)
         if len(self.plot_line_point) > 1:
             bitmaptools.draw_line(
                 self._plot_bitmap,
