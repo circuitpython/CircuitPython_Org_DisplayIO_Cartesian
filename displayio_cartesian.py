@@ -659,12 +659,6 @@ class Cartesian(Widget):
 
                 else:
 
-                    point_to_check = (
-                        self.plot_line_point[-1]
-                        if self.plot_line_point[-1][1] != 0
-                        else self.plot_line_point[-2]
-                    )
-
                     self._draw_area_under(
                         self.plot_line_point[-2], self.plot_line_point[-1]
                     )
