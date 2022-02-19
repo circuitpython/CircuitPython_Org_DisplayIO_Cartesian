@@ -504,7 +504,6 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
-        rtype: None
         """
 
         local_x, local_y = self._calc_local_xy(x, y)
@@ -566,6 +565,7 @@ class Cartesian(Widget):
                             self.height,
                         )
                     )
+
         else:
             # for better error messages we check in detail what failed...
             if not self._check_x_in_range(x):
@@ -644,8 +644,6 @@ class Cartesian(Widget):
 
         :param int palette_index: color palett index. Defaults to 5
         :return: None
-
-        rtype: None
         """
         self.plot_line_point = None
         self._plot_bitmap.fill(palette_index)
