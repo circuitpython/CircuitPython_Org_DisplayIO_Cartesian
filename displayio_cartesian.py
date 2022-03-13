@@ -183,6 +183,7 @@ class Cartesian(Widget):
         nudge_x: int = 0,
         nudge_y: int = 0,
         verbose: bool = False,
+        fill_area: bool = False,
         **kwargs,
     ) -> None:
 
@@ -317,6 +318,8 @@ class Cartesian(Widget):
         self._pointer = None
         self._circle_palette = None
         self.plot_line_point = None
+
+        self._fill_area = fill_area
 
     @staticmethod
     def _get_font_height(font, scale: int) -> Tuple[int, int]:
@@ -501,8 +504,8 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
-        rtype: None
         """
+
         local_x, local_y = self._calc_local_xy(x, y)
         if self._verbose:
             print("")
@@ -562,6 +565,7 @@ class Cartesian(Widget):
                             self.height,
                         )
                     )
+
         else:
             # for better error messages we check in detail what failed...
             if not self._check_x_in_range(x):
@@ -591,7 +595,6 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
-        rtype: None
         """
         self._add_point(x, y)
         if not self._pointer:
@@ -603,6 +606,15 @@ class Cartesian(Widget):
             self._pointer.x = self.plot_line_point[-1][0]
             self._pointer.y = self.plot_line_point[-1][1]
 
+    @property
+    def fill_area(self) -> bool:
+        """Whether the area under the graph (integral) should be shaded"""
+        return self._fill_area
+
+    @fill_area.setter
+    def fill_area(self, setting: bool) -> None:
+        self._fill_area = setting
+
     def add_plot_line(self, x: int, y: int) -> None:
         """add_plot_line function.
 
@@ -612,8 +624,6 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
-
-        rtype: None
         """
         self._add_point(x, y)
         if len(self.plot_line_point) > 1:
@@ -625,8 +635,52 @@ class Cartesian(Widget):
                 self.plot_line_point[-1][1],
                 1,
             )
+            # Plot area under graph
+            if self._fill_area:
 
-    def clear_plot_lines(self, palette_index=5):
+                delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
+                delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
+                delta_y_product = (
+                    self.plot_line_point[-1][1] * self.plot_line_point[-2][1]
+                )
+
+                if delta_x == 0:
+                    return
+
+                slope = delta_y / delta_x
+
+                if delta_y_product < 0:
+
+                    intercept = self.plot_line_point[-1][1]
+                    zero_point_x = (-1 * intercept) / slope
+
+                    self._draw_area_under(self.plot_line_point[-2], (zero_point_x, 0))
+                    self._draw_area_under((zero_point_x, 0), self.plot_line_point[-1])
+
+                else:
+
+                    self._draw_area_under(
+                        self.plot_line_point[-2], self.plot_line_point[-1]
+                    )
+
+    def _draw_area_under(
+        self, xy0: Tuple[float, float], xy1: Tuple[float, float]
+    ) -> None:
+
+        _, plot_y_zero = self._calc_local_xy(0, 0)
+
+        delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
+        delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
+        slope = delta_y / delta_x
+
+        for pixel_x in range(xy0[0], xy1[0] + 1):
+            if pixel_x != xy1[0]:
+                pixel_y = round(slope * (pixel_x - xy1[0]) + xy1[1])
+            bitmaptools.draw_line(
+                self._plot_bitmap, pixel_x, pixel_y, pixel_x, plot_y_zero, 1
+            )
+
+    def clear_plot_lines(self, palette_index: int = 5) -> None:
         """clear_plot_lines function.
 
         clear all added lines
@@ -634,8 +688,6 @@ class Cartesian(Widget):
 
         :param int palette_index: color palett index. Defaults to 5
         :return: None
-
-        rtype: None
         """
         self.plot_line_point = None
         self._plot_bitmap.fill(palette_index)
