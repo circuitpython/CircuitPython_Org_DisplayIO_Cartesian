@@ -25,7 +25,6 @@ import displayio
 import terminalio
 import vectorio
 from adafruit_display_text import bitmap_label
-
 from adafruit_displayio_layout.widgets.widget import Widget
 
 try:
