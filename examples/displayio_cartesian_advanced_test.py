@@ -10,6 +10,7 @@ parameters.
 import board
 import displayio
 import terminalio
+
 from displayio_cartesian import Cartesian
 
 # Fonts used for the Dial tick labels

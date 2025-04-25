@@ -6,10 +6,12 @@
 This is a basic demonstration of a Cartesian widget for line-ploting
 """
 
+import random
 import time
+
 import board
 import displayio
-import random
+
 from displayio_cartesian import Cartesian
 
 # create the display on the PyPortal or Clue or PyBadge(for example)

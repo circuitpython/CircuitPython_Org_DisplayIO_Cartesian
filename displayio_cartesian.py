@@ -21,15 +21,12 @@ Implementation Notes
 
 """
 
-# pylint: disable=too-many-lines, too-many-instance-attributes, too-many-arguments
-# pylint: disable=too-many-locals, too-many-statements
-
 import displayio
 import terminalio
-from adafruit_display_text import bitmap_label
 import vectorio
+from adafruit_display_text import bitmap_label
+
 from adafruit_displayio_layout.widgets.widget import Widget
-from adafruit_displayio_layout.widgets import rectangle_helper
 
 try:
     import bitmaptools
@@ -37,7 +34,7 @@ except ImportError:
     pass
 
 try:
-    from typing import Tuple
+    from typing import Any, List, Optional, Tuple
 except ImportError:
     pass
 
@@ -95,7 +92,7 @@ class Cartesian(Widget):
 
     .. code-block:: python
 
-        display.show(my_plane) # add the group to the display
+        display.root_group = my_plane # add the group to the display
 
     If you want to have multiple display elements, you can create a group and then
     append the plane and the other elements to the group.  Then, you can add the full
@@ -111,7 +108,7 @@ class Cartesian(Widget):
         # Append other display elements to the group
         #
 
-        display.show(my_group) # add the group to the display
+        display.root_group = my_group # add the group to the display
 
 
     **Summary: Cartesian Features and input variables**
@@ -134,7 +131,7 @@ class Cartesian(Widget):
 
         - **range**: ``xrange`` and ``yrange`` This is the range in absolute units.
           For example, when using (20-90), the X axis will start at 20 finishing at 90.
-          However the height of the graph is given by the height parameter. The scale
+          However, the height of the graph is given by the height parameter. The scale
           is handled internal to provide a 1:1 experience when you update the graph.
 
 
@@ -175,7 +172,7 @@ class Cartesian(Widget):
         tick_color: int = 0xFFFFFF,
         major_tick_stroke: int = 1,
         major_tick_length: int = 5,
-        tick_label_font=terminalio.FONT,
+        tick_label_font: terminalio.FONT = terminalio.FONT,
         font_color: int = 0xFFFFFF,
         pointer_radius: int = 1,
         pointer_color: int = 0xFFFFFF,
@@ -183,10 +180,8 @@ class Cartesian(Widget):
         nudge_x: int = 0,
         nudge_y: int = 0,
         verbose: bool = False,
-        fill_area: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
 
         self._verbose = verbose
@@ -228,28 +223,20 @@ class Cartesian(Widget):
         self._valuey = self.height / 100
         self._factory = 100 / (self._yrange[1] - self._yrange[0])
 
-        self._tick_bitmap = displayio.Bitmap(
-            self._tick_line_thickness, self._tick_line_height, 3
-        )
+        self._tick_bitmap = displayio.Bitmap(self._tick_line_thickness, self._tick_line_height, 3)
         self._tick_bitmap.fill(1)
 
         self._subticks = subticks
 
         axesx_height = (
-            2
-            + self._axes_line_thickness
-            + self._font_height
-            + self._tick_line_height // 2
+            2 + self._axes_line_thickness + self._font_height + self._tick_line_height // 2
         )
 
         self._axesx_bitmap = displayio.Bitmap(self.width, axesx_height, 4)
         self._axesx_bitmap.fill(0)
 
         self._axesy_width = (
-            2
-            + self._axes_line_thickness
-            + self._font_width
-            + self._tick_line_height // 2
+            2 + self._axes_line_thickness + self._font_width + self._tick_line_height // 2
         )
 
         self._axesy_bitmap = displayio.Bitmap(self._axesy_width, self.height, 4)
@@ -266,14 +253,14 @@ class Cartesian(Widget):
         self._screen_palette[5] = self._background_color
 
         self._corner_bitmap = displayio.Bitmap(10, 10, 5)
-        rectangle_helper(
-            0,
-            0,
-            self._axes_line_thickness,
-            self._axes_line_thickness,
+
+        bitmaptools.fill_region(
             self._corner_bitmap,
+            0,
+            0,
+            self._axes_line_thickness,
+            self._axes_line_thickness,
             2,
-            self._screen_palette,
         )
 
         self._corner_tilegrid = displayio.TileGrid(
@@ -315,14 +302,12 @@ class Cartesian(Widget):
         self.append(self._screen_tilegrid)
         self.append(self._corner_tilegrid)
 
-        self._pointer = None
-        self._circle_palette = None
-        self.plot_line_point = None
-
-        self._fill_area = fill_area
+        self._pointer: Optional[vectorio.Circle] = None
+        self._circle_palette: Optional[displayio.Palette] = None
+        self.plot_line_point: List[Tuple[int, int]] = []
 
     @staticmethod
-    def _get_font_height(font, scale: int) -> Tuple[int, int]:
+    def _get_font_height(font: terminalio.FONT, scale: int) -> Tuple[int, int]:
         if hasattr(font, "get_bounding_box"):
             font_height = int(scale * font.get_bounding_box()[1])
             font_width = int(scale * font.get_bounding_box()[0])
@@ -335,28 +320,22 @@ class Cartesian(Widget):
         return font_width, font_height
 
     def _draw_axes(self) -> None:
-        # Draw x axes line
-        rectangle_helper(
-            0,
-            0,
-            self._axes_line_thickness,
-            self.width,
+        bitmaptools.fill_region(
             self._axesx_bitmap,
+            0,
+            0,
+            self.width,
+            self._axes_line_thickness,
             2,
-            self._screen_palette,
-            True,
         )
 
-        # Draw y axes line
-        rectangle_helper(
+        bitmaptools.fill_region(
+            self._axesy_bitmap,
             self._axesy_width - self._axes_line_thickness,
             0,
+            self._axesy_width,
             self.height,
-            self._axes_line_thickness,
-            self._axesy_bitmap,
             2,
-            self._screen_palette,
-            True,
         )
 
     def _draw_ticks(self) -> None:
@@ -381,30 +360,28 @@ class Cartesian(Widget):
                     + 1,
                 )
                 self.append(tick_text)
-                rectangle_helper(
+
+                bitmaptools.fill_region(
+                    self._axesx_bitmap,
                     text_dist,
                     self._axes_line_thickness,
-                    self._tick_line_height,
-                    self._tick_line_thickness,
-                    self._axesx_bitmap,
+                    text_dist + self._tick_line_thickness,
+                    self._axes_line_thickness + self._tick_line_height,
                     1,
-                    self._screen_palette,
-                    True,
                 )
 
             if self._subticks:
                 if i in subticks:
                     # calc subtick_line_height; force min lineheigt to 1.
                     subtick_line_height = max(1, self._tick_line_height // 2)
-                    rectangle_helper(
+
+                    bitmaptools.fill_region(
+                        self._axesx_bitmap,
                         text_dist,
                         self._axes_line_thickness,
-                        subtick_line_height,
+                        text_dist + 1,
+                        self._axes_line_thickness + subtick_line_height,
                         1,
-                        self._axesx_bitmap,
-                        1,
-                        self._screen_palette,
-                        True,
                     )
 
         # Y axes ticks
@@ -417,46 +394,37 @@ class Cartesian(Widget):
                     self._font,
                     color=self._font_color,
                     text=text_tick,
-                    x=-shift_label_x
-                    - self._axes_line_thickness
-                    - self._tick_line_height
-                    - 2,
+                    x=-shift_label_x - self._axes_line_thickness - self._tick_line_height - 2,
                     y=0 + self.height - text_dist,
                 )
                 self.append(tick_text)
-                rectangle_helper(
-                    self._axesy_width
-                    - self._axes_line_thickness
-                    - self._tick_line_height
-                    - 1,
-                    text_dist,
-                    self._tick_line_thickness,
-                    self._tick_line_height,
+
+                bitmaptools.fill_region(
                     self._axesy_bitmap,
+                    self._axesy_width - self._axes_line_thickness - self._tick_line_height - 1,
+                    text_dist,
+                    self._axesy_width - self._axes_line_thickness - 1,
+                    text_dist + self._tick_line_thickness,
                     1,
-                    self._screen_palette,
-                    True,
                 )
 
             if self._subticks:
                 if i in subticks:
-                    rectangle_helper(
+                    bitmaptools.fill_region(
+                        self._axesy_bitmap,
                         self._axesy_width
                         - self._axes_line_thickness
                         - self._tick_line_height // 2
                         - 1,
                         text_dist,
+                        self._axesy_width - self._axes_line_thickness - 1,
+                        text_dist + 1,
                         1,
-                        self._tick_line_height // 2,
-                        self._axesy_bitmap,
-                        1,
-                        self._screen_palette,
-                        True,
                     )
 
     def _draw_pointers(self, x: int, y: int) -> None:
-
         self._circle_palette = displayio.Palette(1)
+
         self._circle_palette[0] = self._pointer_color
         self._pointer = vectorio.Circle(
             radius=self._pointer_radius, x=x, y=y, pixel_shader=self._circle_palette
@@ -465,9 +433,7 @@ class Cartesian(Widget):
         self.append(self._pointer)
 
     def _calc_local_xy(self, x: int, y: int) -> Tuple[int, int]:
-        local_x = (
-            int((x - self._xrange[0]) * self._factorx * self._valuex) + self._nudge_x
-        )
+        local_x = int((x - self._xrange[0]) * self._factorx * self._valuex) + self._nudge_x
         # details on `+ (self.height - 1)` :
         # the bitmap is set to self.width & self.height
         # but we are only allowed to draw to pixels 0..height-1 and 0..width-1
@@ -478,24 +444,22 @@ class Cartesian(Widget):
         )
         return (local_x, local_y)
 
-    def _check_local_x_in_range(self, local_x):
+    def _check_local_x_in_range(self, local_x: int) -> bool:
         return 0 <= local_x < self.width
 
-    def _check_local_y_in_range(self, local_y):
+    def _check_local_y_in_range(self, local_y: int) -> bool:
         return 0 <= local_y < self.height
 
-    def _check_local_xy_in_range(self, local_x, local_y):
-        return self._check_local_x_in_range(local_x) and self._check_local_y_in_range(
-            local_y
-        )
+    def _check_local_xy_in_range(self, local_x: int, local_y: int) -> bool:
+        return self._check_local_x_in_range(local_x) and self._check_local_y_in_range(local_y)
 
-    def _check_x_in_range(self, x):
+    def _check_x_in_range(self, x: int) -> bool:
         return self._xrange[0] <= x <= self._xrange[1]
 
-    def _check_y_in_range(self, y):
+    def _check_y_in_range(self, y: int) -> bool:
         return self._yrange[0] <= y <= self._yrange[1]
 
-    def _check_xy_in_range(self, x, y):
+    def _check_xy_in_range(self, x: int, y: int) -> bool:
         return self._check_x_in_range(x) and self._check_y_in_range(y)
 
     def _add_point(self, x: int, y: int) -> None:
@@ -504,36 +468,21 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
+        rtype: None
         """
-
         local_x, local_y = self._calc_local_xy(x, y)
         if self._verbose:
             print("")
             print(
-                "xy:      ({: >4}, {: >4})  "
-                "_xrange: ({: >4}, {: >4})  "
-                "_yrange: ({: >4}, {: >4})  "
-                "".format(
-                    x,
-                    y,
-                    self._xrange[0],
-                    self._xrange[1],
-                    self._yrange[0],
-                    self._yrange[1],
-                )
+                f"xy:      ({x: >4}, {y: >4})  "
+                + f"_xrange: ({self._xrange[0]: >4}, {self._xrange[1]: >4})  "
+                + f"_yrange: ({self._yrange[0]: >4}, {self._yrange[1]: >4})  "
+                ""
             )
             print(
-                "local_*: ({: >4}, {: >4})  "
-                " width:  ({: >4}, {: >4})  "
-                " height: ({: >4}, {: >4})  "
-                "".format(
-                    local_x,
-                    local_y,
-                    0,
-                    self.width,
-                    0,
-                    self.height,
-                )
+                f"local_*: ({local_x: >4}, {local_y: >4})  "
+                + f" width:  ({0: >4}, {self.width: >4})  "
+                + f" height: ({0: >4}, {self.height: >4})  "
             )
         if self._check_xy_in_range(x, y):
             if self._check_local_xy_in_range(local_x, local_y):
@@ -548,45 +497,28 @@ class Cartesian(Widget):
                 if not self._check_local_x_in_range(local_x):
                     raise ValueError(
                         "local_x out of range: "
-                        "local_x:{: >4}; _xrange({: >4}, {: >4})"
-                        "".format(
-                            local_x,
-                            0,
-                            self.width,
-                        )
+                        f"local_x:{local_x: >4}; _xrange({0: >4}, {self.width: >4})"
+                        ""
                     )
                 if not self._check_local_y_in_range(local_y):
                     raise ValueError(
                         "local_y out of range: "
-                        "local_y:{: >4}; _yrange({: >4}, {: >4})"
-                        "".format(
-                            local_y,
-                            0,
-                            self.height,
-                        )
+                        f"local_y:{local_y: >4}; _yrange({0: >4}, {self.height: >4})"
+                        ""
                     )
-
         else:
             # for better error messages we check in detail what failed...
             if not self._check_x_in_range(x):
                 raise ValueError(
                     "x out of range:    "
-                    "x:{: >4}; xrange({: >4}, {: >4})"
-                    "".format(
-                        x,
-                        self._xrange[0],
-                        self._xrange[1],
-                    )
+                    f"x:{x: >4}; xrange({self._xrange[0]: >4}, {self._xrange[1]: >4})"
+                    ""
                 )
             if not self._check_y_in_range(y):
                 raise ValueError(
                     "y out of range:    "
-                    "y:{: >4}; yrange({: >4}, {: >4})"
-                    "".format(
-                        y,
-                        self._yrange[0],
-                        self._yrange[1],
-                    )
+                    f"y:{y: >4}; yrange({self._yrange[0]: >4}, {self._yrange[1]: >4})"
+                    ""
                 )
 
     def update_pointer(self, x: int, y: int) -> None:
@@ -595,7 +527,9 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
+        rtype: None
         """
+
         self._add_point(x, y)
         if not self._pointer:
             self._draw_pointers(
@@ -606,15 +540,6 @@ class Cartesian(Widget):
             self._pointer.x = self.plot_line_point[-1][0]
             self._pointer.y = self.plot_line_point[-1][1]
 
-    @property
-    def fill_area(self) -> bool:
-        """Whether the area under the graph (integral) should be shaded"""
-        return self._fill_area
-
-    @fill_area.setter
-    def fill_area(self, setting: bool) -> None:
-        self._fill_area = setting
-
     def add_plot_line(self, x: int, y: int) -> None:
         """add_plot_line function.
 
@@ -624,7 +549,10 @@ class Cartesian(Widget):
         :param int x: ``x`` coordinate in the local plane
         :param int y: ``y`` coordinate in the local plane
         :return: None
+
+        rtype: None
         """
+
         self._add_point(x, y)
         if len(self.plot_line_point) > 1:
             bitmaptools.draw_line(
@@ -634,50 +562,6 @@ class Cartesian(Widget):
                 self.plot_line_point[-1][0],
                 self.plot_line_point[-1][1],
                 1,
-            )
-            # Plot area under graph
-            if self._fill_area:
-
-                delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
-                delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
-                delta_y_product = (
-                    self.plot_line_point[-1][1] * self.plot_line_point[-2][1]
-                )
-
-                if delta_x == 0:
-                    return
-
-                slope = delta_y / delta_x
-
-                if delta_y_product < 0:
-
-                    intercept = self.plot_line_point[-1][1]
-                    zero_point_x = (-1 * intercept) / slope
-
-                    self._draw_area_under(self.plot_line_point[-2], (zero_point_x, 0))
-                    self._draw_area_under((zero_point_x, 0), self.plot_line_point[-1])
-
-                else:
-
-                    self._draw_area_under(
-                        self.plot_line_point[-2], self.plot_line_point[-1]
-                    )
-
-    def _draw_area_under(
-        self, xy0: Tuple[float, float], xy1: Tuple[float, float]
-    ) -> None:
-
-        _, plot_y_zero = self._calc_local_xy(0, 0)
-
-        delta_x = self.plot_line_point[-2][0] - self.plot_line_point[-1][0]
-        delta_y = self.plot_line_point[-2][1] - self.plot_line_point[-1][1]
-        slope = delta_y / delta_x
-
-        for pixel_x in range(xy0[0], xy1[0] + 1):
-            if pixel_x != xy1[0]:
-                pixel_y = round(slope * (pixel_x - xy1[0]) + xy1[1])
-            bitmaptools.draw_line(
-                self._plot_bitmap, pixel_x, pixel_y, pixel_x, plot_y_zero, 1
             )
 
     def clear_plot_lines(self, palette_index: int = 5) -> None:
@@ -689,5 +573,5 @@ class Cartesian(Widget):
         :param int palette_index: color palett index. Defaults to 5
         :return: None
         """
-        self.plot_line_point = None
+        self.plot_line_point = []
         self._plot_bitmap.fill(palette_index)
